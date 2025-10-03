@@ -1,0 +1,76 @@
+{
+  "teamMembers": {
+    "tpm": [
+      {
+        "name": "Alex Rivera",
+        "email": "alex.rivera@acme.com",
+        "value": "Alex Rivera - alex.rivera@acme.com"
+      },
+      {
+        "name": "Maya Chen",
+        "email": "maya.chen@acme.com",
+        "value": "Maya Chen - maya.chen@acme.com"
+      }
+    ],
+    "designers": [
+      {
+        "name": "Sofia Martinez",
+        "email": "sofia.martinez@acme.com",
+        "value": "Sofia Martinez - sofia.martinez@acme.com"
+      },
+      {
+        "name": "Diego Rodriguez",
+        "email": "diego.rodriguez@acme.com",
+        "value": "Diego Rodriguez - diego.rodriguez@acme.com"
+      },
+      {
+        "name": "Emma Thompson",
+        "email": "emma.thompson@acme.com",
+        "value": "Emma Thompson - emma.thompson@acme.com"
+      },
+      {
+        "name": "Lucas Kim",
+        "email": "lucas.kim@acme.com",
+        "value": "Lucas Kim - lucas.kim@acme.com"
+      }
+    ]
+  },
+  "projectTypes": {
+    "MY": [
+      {
+        "value": "Shopping",
+        "label": "Shopping"
+      },
+      {
+        "value": "Onboarding",
+        "label": "Onboarding"
+      }
+    ],
+    "PRO": [
+      {
+        "value": "Patient Support",
+        "label": "Patient Support"
+      },
+      {
+        "value": "Client Support",
+        "label": "Client Support"
+      }
+    ]
+  },
+  "defaults": {
+    "tpm": {
+      "MY": "Maya Chen - maya.chen@acme.com",
+      "PRO": "Alex Rivera - alex.rivera@acme.com"
+    }
+  },
+  "componentKeys": {
+    "cover": {
+      "MY": "a123290810f6f2bd60455ebeb129b9487b36aaeb",
+      "PRO": "98eb7f7153fee359d82ea68def98be045fb06ced"
+    },
+    "team": {
+      "MY": "f6d3f31bcca61d2a122038f93fd442352d9537c9",
+      "PRO": "5a498db92f8b29b143b61ec892695ec43fc05f2a"
+    }
+  }
+}

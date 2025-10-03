@@ -20,15 +20,36 @@ type GeneratePayload = {
   type?: string;
 };
 
-const COVER_COMPONENT_KEYS: Record<string, string> = {
-  MY: "a123290810f6f2bd60455ebeb129b9487b36aaeb",
-  PRO: "98eb7f7153fee359d82ea68def98be045fb06ced",
-};
+// Component keys will be loaded from config.json
+let COVER_COMPONENT_KEYS: Record<string, string> = {};
+let TEAM_COMPONENT_KEYS: Record<string, string> = {};
 
-const TEAM_COMPONENT_KEYS: Record<string, string> = {
-  MY: "f6d3f31bcca61d2a122038f93fd442352d9537c9",
-  PRO: "5a498db92f8b29b143b61ec892695ec43fc05f2a",
-};
+// Load configuration from config.json
+async function loadConfig() {
+  try {
+    const configResponse = await fetch("./config.json");
+    const config = await configResponse.json();
+
+    COVER_COMPONENT_KEYS = config.componentKeys.cover;
+    TEAM_COMPONENT_KEYS = config.componentKeys.team;
+
+    console.log("Configuration loaded successfully");
+  } catch (error) {
+    console.error("Error loading config:", error);
+    // Fallback to hardcoded values
+    COVER_COMPONENT_KEYS = {
+      MY: "a123290810f6f2bd60455ebeb129b9487b36aaeb",
+      PRO: "98eb7f7153fee359d82ea68def98be045fb06ced",
+    };
+    TEAM_COMPONENT_KEYS = {
+      MY: "f6d3f31bcca61d2a122038f93fd442352d9537c9",
+      PRO: "5a498db92f8b29b143b61ec892695ec43fc05f2a",
+    };
+  }
+}
+
+// Load config when plugin starts
+loadConfig();
 
 function checkIfProjectExists() {
   const mainPages = [

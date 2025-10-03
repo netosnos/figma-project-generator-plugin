@@ -210,21 +210,91 @@
   const typeSelect = document.getElementById("type");
   const tpmSelect = document.getElementById("tpm");
 
-  const TYPE_OPTIONS = {
-    MY: [
-      { value: "Shopping", label: "Shopping" },
-      { value: "Onboarding", label: "Onboarding" },
-    ],
-    PRO: [
-      { value: "Pattient Support", label: "Pattient Support" },
-      { value: "Client Support", label: "Client Support" },
-    ],
-  };
+  // Configuration will be loaded from config.json
+  let CONFIG = null;
+  let TYPE_OPTIONS = {};
+  let TPM_DEFAULTS = {};
+  let TEAM_MEMBERS = { tpm: [], designers: [] };
 
-  const TPM_DEFAULTS = {
-    MY: "Maya Chen - maya.chen@acme.com",
-    PRO: "Alex Rivera - alex.rivera@acme.com",
-  };
+  // Load configuration
+  async function loadConfig() {
+    try {
+      const response = await fetch("./config.json");
+      CONFIG = await response.json();
+
+      TYPE_OPTIONS = CONFIG.projectTypes;
+      TPM_DEFAULTS = CONFIG.defaults.tpm;
+      TEAM_MEMBERS = CONFIG.teamMembers;
+
+      // Populate dropdowns with loaded data
+      populateDropdowns();
+    } catch (error) {
+      console.error("Error loading config:", error);
+      // Fallback to hardcoded values if config fails to load
+      TYPE_OPTIONS = {
+        MY: [
+          { value: "Shopping", label: "Shopping" },
+          { value: "Onboarding", label: "Onboarding" },
+        ],
+        PRO: [
+          { value: "Patient Support", label: "Patient Support" },
+          { value: "Client Support", label: "Client Support" },
+        ],
+      };
+      TPM_DEFAULTS = {
+        MY: "Maya Chen - maya.chen@acme.com",
+        PRO: "Alex Rivera - alex.rivera@acme.com",
+      };
+      TEAM_MEMBERS = {
+        tpm: [
+          { name: "Alex Rivera", value: "Alex Rivera - alex.rivera@acme.com" },
+          { name: "Maya Chen", value: "Maya Chen - maya.chen@acme.com" },
+        ],
+        designers: [
+          {
+            name: "Sofia Martinez",
+            value: "Sofia Martinez - sofia.martinez@acme.com",
+          },
+          {
+            name: "Diego Rodriguez",
+            value: "Diego Rodriguez - diego.rodriguez@acme.com",
+          },
+          {
+            name: "Emma Thompson",
+            value: "Emma Thompson - emma.thompson@acme.com",
+          },
+          { name: "Lucas Kim", value: "Lucas Kim - lucas.kim@acme.com" },
+        ],
+      };
+      populateDropdowns();
+    }
+  }
+
+  function populateDropdowns() {
+    // Populate TPM dropdown
+    const tpmSelect = document.getElementById("tpm");
+    tpmSelect.innerHTML = '<option value="">Select TPM...</option>';
+    TEAM_MEMBERS.tpm.forEach((member) => {
+      const option = document.createElement("option");
+      option.value = member.value;
+      option.textContent = member.name;
+      tpmSelect.appendChild(option);
+    });
+
+    // Populate Designer dropdown
+    const designerSelect = document.getElementById("designer");
+    designerSelect.innerHTML = '<option value="">Select designer...</option>';
+    TEAM_MEMBERS.designers.forEach((member) => {
+      const option = document.createElement("option");
+      option.value = member.value;
+      option.textContent = member.name;
+      designerSelect.appendChild(option);
+    });
+
+    // Initialize type options based on default area
+    refreshTypeOptions(areaSelect.value);
+    setTpmDefault(areaSelect.value);
+  }
 
   function refreshTypeOptions(area) {
     typeSelect.innerHTML = "";
@@ -274,9 +344,8 @@
     }
   }
 
-  // initialize based on default area
-  refreshTypeOptions(areaSelect.value);
-  setTpmDefault(areaSelect.value);
+  // Load configuration and initialize
+  loadConfig();
 
   areaSelect.addEventListener("change", () => {
     refreshTypeOptions(areaSelect.value);

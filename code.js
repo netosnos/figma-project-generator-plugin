@@ -16,14 +16,35 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 // full browser environment (See https://www.figma.com/plugin-docs/how-plugins-run).
 // This shows the HTML page in "ui.html".
 figma.showUI(__html__, { width: 420, height: 580 });
-const COVER_COMPONENT_KEYS = {
-    MY: "a123290810f6f2bd60455ebeb129b9487b36aaeb",
-    PRO: "98eb7f7153fee359d82ea68def98be045fb06ced",
-};
-const TEAM_COMPONENT_KEYS = {
-    MY: "f6d3f31bcca61d2a122038f93fd442352d9537c9",
-    PRO: "5a498db92f8b29b143b61ec892695ec43fc05f2a",
-};
+// Component keys will be loaded from config.json
+let COVER_COMPONENT_KEYS = {};
+let TEAM_COMPONENT_KEYS = {};
+// Load configuration from config.json
+function loadConfig() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const configResponse = yield fetch("./config.json");
+            const config = yield configResponse.json();
+            COVER_COMPONENT_KEYS = config.componentKeys.cover;
+            TEAM_COMPONENT_KEYS = config.componentKeys.team;
+            console.log("Configuration loaded successfully");
+        }
+        catch (error) {
+            console.error("Error loading config:", error);
+            // Fallback to hardcoded values
+            COVER_COMPONENT_KEYS = {
+                MY: "a123290810f6f2bd60455ebeb129b9487b36aaeb",
+                PRO: "98eb7f7153fee359d82ea68def98be045fb06ced",
+            };
+            TEAM_COMPONENT_KEYS = {
+                MY: "f6d3f31bcca61d2a122038f93fd442352d9537c9",
+                PRO: "5a498db92f8b29b143b61ec892695ec43fc05f2a",
+            };
+        }
+    });
+}
+// Load config when plugin starts
+loadConfig();
 function checkIfProjectExists() {
     const mainPages = [
         "📙 About",
