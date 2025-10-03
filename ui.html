@@ -1,0 +1,321 @@
+<div class="container">
+  <div class="header">
+    <h1>🚀 Project Generator</h1>
+    <p class="subtitle">Create your design project structure</p>
+  </div>
+
+  <form id="project-form">
+    <div class="form-group">
+      <label for="title">Project title</label>
+      <input id="title" type="text" placeholder="e.g. App Redesign" required />
+    </div>
+
+    <div class="form-group">
+      <label for="area">Company Area</label>
+      <select id="area">
+        <option value="MY">MY</option>
+        <option value="PRO">PRO</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="type">Type</label>
+      <select id="type">
+        <!-- options will be populated based on area -->
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="tpm">TPM</label>
+      <select id="tpm" required>
+        <option value="">Select TPM...</option>
+        <option value="Alex Rivera - alex.rivera@acme.com">Alex Rivera</option>
+        <option value="Maya Chen - maya.chen@acme.com">Maya Chen</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="designer">Designer</label>
+      <select id="designer" required>
+        <option value="">Select designer...</option>
+        <option value="Sofia Martinez - sofia.martinez@acme.com">
+          Sofia Martinez
+        </option>
+        <option value="Diego Rodriguez - diego.rodriguez@acme.com">
+          Diego Rodriguez
+        </option>
+        <option value="Emma Thompson - emma.thompson@acme.com">
+          Emma Thompson
+        </option>
+        <option value="Lucas Kim - lucas.kim@acme.com">Lucas Kim</option>
+      </select>
+    </div>
+
+    <div class="actions">
+      <button type="submit" id="generate" class="btn-primary">
+        <span class="btn-text">Generate Project</span>
+        <span class="btn-loading" style="display: none">Generating...</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      sans-serif;
+    background: white;
+    color: #333;
+    min-height: 100vh;
+  }
+
+  .container {
+    background: white;
+    padding: 32px;
+    max-width: 100%;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .header h1 {
+    color: #6341a3;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: #666;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: white;
+  }
+
+  select {
+    width: 100%;
+    padding: 12px 40px 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: white;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  select:focus {
+    outline: none;
+    border-color: #6341a3;
+    box-shadow: 0 0 0 3px rgba(99, 65, 163, 0.1);
+    z-index: 2;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: #6341a3;
+    box-shadow: 0 0 0 3px rgba(99, 65, 163, 0.1);
+  }
+
+  .actions {
+    margin-top: 32px;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 16px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #6341a3 0%, #8b5cf6 100%);
+    color: white;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 65, 163, 0.3);
+  }
+
+  .btn-primary:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .btn-primary:disabled:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .btn-loading {
+    display: none;
+  }
+
+  .btn-primary.loading .btn-text {
+    display: none;
+  }
+
+  .btn-primary.loading .btn-loading {
+    display: inline;
+  }
+</style>
+
+<script>
+  const form = document.getElementById("project-form");
+  const generateBtn = document.getElementById("generate");
+
+  const areaSelect = document.getElementById("area");
+  const typeSelect = document.getElementById("type");
+  const tpmSelect = document.getElementById("tpm");
+
+  const TYPE_OPTIONS = {
+    MY: [
+      { value: "Shopping", label: "Shopping" },
+      { value: "Onboarding", label: "Onboarding" },
+    ],
+    PRO: [
+      { value: "Pattient Support", label: "Pattient Support" },
+      { value: "Client Support", label: "Client Support" },
+    ],
+  };
+
+  const TPM_DEFAULTS = {
+    MY: "Maya Chen - maya.chen@acme.com",
+    PRO: "Alex Rivera - alex.rivera@acme.com",
+  };
+
+  function refreshTypeOptions(area) {
+    typeSelect.innerHTML = "";
+    const options = TYPE_OPTIONS[area] || [];
+    for (const opt of options) {
+      const el = document.createElement("option");
+      el.value = opt.value;
+      el.textContent = opt.label;
+      typeSelect.appendChild(el);
+    }
+  }
+
+  function setTpmDefault(area) {
+    const defaultTpm = TPM_DEFAULTS[area];
+    if (defaultTpm) {
+      tpmSelect.value = defaultTpm;
+    }
+  }
+
+  let loadingTimeout;
+
+  function showLoading() {
+    generateBtn.classList.add("loading");
+    generateBtn.disabled = true;
+
+    // Show "Generating..." text and hide normal text
+    generateBtn.querySelector(".btn-text").style.display = "none";
+    generateBtn.querySelector(".btn-loading").style.display = "inline";
+
+    // Safety timeout to restore button after 30 seconds
+    loadingTimeout = setTimeout(() => {
+      hideLoading();
+    }, 30000);
+  }
+
+  function hideLoading() {
+    generateBtn.classList.remove("loading");
+    generateBtn.disabled = false;
+
+    // Show normal text and hide loading text
+    generateBtn.querySelector(".btn-text").style.display = "inline";
+    generateBtn.querySelector(".btn-loading").style.display = "none";
+
+    if (loadingTimeout) {
+      clearTimeout(loadingTimeout);
+      loadingTimeout = null;
+    }
+  }
+
+  // initialize based on default area
+  refreshTypeOptions(areaSelect.value);
+  setTpmDefault(areaSelect.value);
+
+  areaSelect.addEventListener("change", () => {
+    refreshTypeOptions(areaSelect.value);
+    setTpmDefault(areaSelect.value);
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const title = document.getElementById("title").value.trim();
+    const designer = document.getElementById("designer").value.trim();
+    const tpm = document.getElementById("tpm").value.trim();
+    const area = document.getElementById("area").value;
+    const type = document.getElementById("type").value;
+
+    if (!title || !designer || !tpm) {
+      return;
+    }
+
+    showLoading();
+
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: "generate-project",
+          payload: { title, designer, tpm, area, type },
+        },
+      },
+      "*"
+    );
+  });
+
+  // Receive status messages from plugin
+  window.onmessage = (event) => {
+    const msg = event.data && event.data.pluginMessage;
+    if (!msg) return;
+
+    if (msg.type === "success" || msg.type === "error") {
+      hideLoading();
+    }
+  };
+</script>
