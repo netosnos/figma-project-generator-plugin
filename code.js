@@ -139,6 +139,7 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
             }
             // Show single progress notification
             figma.notify("Generando proyecto...");
+            // Note: Background color will be set at the end to avoid being overwritten
             // Store the initial page to delete it later
             const initialPage = figma.currentPage;
             // Create page structure
@@ -295,6 +296,23 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
                 console.log("Cover instance detached and set as file thumbnail");
             }
             figma.viewport.scrollAndZoomIntoView([coverInstance]);
+            // Set background color of all pages to #F5F5F5 (at the end to avoid being overwritten)
+            console.log("Setting background color of all pages to #F5F5F5...");
+            figma.root.children.forEach((page, index) => {
+                if (page.type === "PAGE") {
+                    console.log(`Setting background for page ${index}: ${page.name}`);
+                    try {
+                        page.backgrounds = [
+                            { type: "SOLID", color: { r: 0.96, g: 0.96, b: 0.96 } },
+                        ];
+                        console.log(`Background set for page: ${page.name}`);
+                    }
+                    catch (error) {
+                        console.error(`Error setting background for page ${page.name}:`, error);
+                    }
+                }
+            });
+            console.log("Background color change completed");
             // Clear any previous notifications and show success
             figma.notify(`✅ Proyecto "${title}" generado exitosamente!`, {
                 timeout: 3000,
