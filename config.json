@@ -63,6 +63,16 @@
       "PRO": "Alex Rivera - alex.rivera@acme.com"
     }
   },
+  "projectContext": {
+    "MY": {
+      "Shopping": "This is MY - Shopping project",
+      "Onboarding": "This is MY - Onboarding project"
+    },
+    "PRO": {
+      "Patient Support": "This is PRO - Patient Support project",
+      "Client Support": "This is PRO - Client Support project"
+    }
+  },
   "componentKeys": {
     "cover": {
       "MY": "a123290810f6f2bd60455ebeb129b9487b36aaeb",
@@ -71,6 +81,10 @@
     "team": {
       "MY": "f6d3f31bcca61d2a122038f93fd442352d9537c9",
       "PRO": "5a498db92f8b29b143b61ec892695ec43fc05f2a"
+    },
+    "context": {
+      "MY": "e467a8aa279dfc2e637b2c93345d0fde1140946e",
+      "PRO": "f79cf58bd50bc68ea57a1b32d6c3f00af19f4bcd"
     }
   }
 }

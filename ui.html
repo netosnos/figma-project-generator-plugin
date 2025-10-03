@@ -26,6 +26,16 @@
     </div>
 
     <div class="form-group">
+      <label for="context">Project context</label>
+      <input
+        id="context"
+        type="text"
+        placeholder="This is [area] - [type] project"
+        required
+      />
+    </div>
+
+    <div class="form-group">
       <label for="tpm">TPM</label>
       <select id="tpm" required>
         <option value="">Select TPM...</option>
@@ -208,6 +218,7 @@
 
   const areaSelect = document.getElementById("area");
   const typeSelect = document.getElementById("type");
+  const contextInput = document.getElementById("context");
   const tpmSelect = document.getElementById("tpm");
 
   // Configuration will be loaded from config.json
@@ -215,6 +226,7 @@
   let TYPE_OPTIONS = {};
   let TPM_DEFAULTS = {};
   let TEAM_MEMBERS = { tpm: [], designers: [] };
+  let PROJECT_CONTEXT = {};
 
   // Load configuration
   async function loadConfig() {
@@ -225,9 +237,13 @@
       TYPE_OPTIONS = CONFIG.projectTypes;
       TPM_DEFAULTS = CONFIG.defaults.tpm;
       TEAM_MEMBERS = CONFIG.teamMembers;
+      PROJECT_CONTEXT = CONFIG.projectContext;
 
       // Populate dropdowns with loaded data
       populateDropdowns();
+
+      // Update context with default value after loading config
+      updateProjectContext(areaSelect.value, typeSelect.value);
     } catch (error) {
       console.error("Error loading config:", error);
       // Fallback to hardcoded values if config fails to load
@@ -267,6 +283,9 @@
         ],
       };
       populateDropdowns();
+
+      // Update context with default value after fallback
+      updateProjectContext(areaSelect.value, typeSelect.value);
     }
   }
 
@@ -294,6 +313,9 @@
     // Initialize type options based on default area
     refreshTypeOptions(areaSelect.value);
     setTpmDefault(areaSelect.value);
+
+    // Initialize context with default value
+    updateProjectContext(areaSelect.value, typeSelect.value);
   }
 
   function refreshTypeOptions(area) {
@@ -311,6 +333,15 @@
     const defaultTpm = TPM_DEFAULTS[area];
     if (defaultTpm) {
       tpmSelect.value = defaultTpm;
+    }
+  }
+
+  function updateProjectContext(area, type) {
+    if (PROJECT_CONTEXT[area] && PROJECT_CONTEXT[area][type]) {
+      contextInput.value = PROJECT_CONTEXT[area][type];
+    } else {
+      // Fallback if no specific context is found
+      contextInput.value = `This is ${area} - ${type} project`;
     }
   }
 
@@ -350,6 +381,17 @@
   areaSelect.addEventListener("change", () => {
     refreshTypeOptions(areaSelect.value);
     setTpmDefault(areaSelect.value);
+    // Update context when area changes
+    if (typeSelect.value) {
+      updateProjectContext(areaSelect.value, typeSelect.value);
+    }
+  });
+
+  typeSelect.addEventListener("change", () => {
+    // Update context when type changes
+    if (areaSelect.value && typeSelect.value) {
+      updateProjectContext(areaSelect.value, typeSelect.value);
+    }
   });
 
   form.addEventListener("submit", (e) => {
@@ -360,8 +402,9 @@
     const tpm = document.getElementById("tpm").value.trim();
     const area = document.getElementById("area").value;
     const type = document.getElementById("type").value;
+    const context = document.getElementById("context").value.trim();
 
-    if (!title || !designer || !tpm) {
+    if (!title || !designer || !tpm || !context) {
       return;
     }
 
@@ -371,7 +414,7 @@
       {
         pluginMessage: {
           type: "generate-project",
-          payload: { title, designer, tpm, area, type },
+          payload: { title, designer, tpm, area, type, context },
         },
       },
       "*"

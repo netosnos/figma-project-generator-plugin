@@ -18,11 +18,13 @@ type GeneratePayload = {
   tpm: string;
   area: string;
   type?: string;
+  context: string;
 };
 
 // Component keys will be loaded from config.json
 let COVER_COMPONENT_KEYS: Record<string, string> = {};
 let TEAM_COMPONENT_KEYS: Record<string, string> = {};
+let CONTEXT_COMPONENT_KEYS: Record<string, string> = {};
 
 // Load configuration from config.json
 async function loadConfig() {
@@ -32,8 +34,12 @@ async function loadConfig() {
 
     COVER_COMPONENT_KEYS = config.componentKeys.cover;
     TEAM_COMPONENT_KEYS = config.componentKeys.team;
+    CONTEXT_COMPONENT_KEYS = config.componentKeys.context;
 
     console.log("Configuration loaded successfully");
+    console.log("Cover keys:", COVER_COMPONENT_KEYS);
+    console.log("Team keys:", TEAM_COMPONENT_KEYS);
+    console.log("Context keys:", CONTEXT_COMPONENT_KEYS);
   } catch (error) {
     console.error("Error loading config:", error);
     // Fallback to hardcoded values
@@ -44,6 +50,10 @@ async function loadConfig() {
     TEAM_COMPONENT_KEYS = {
       MY: "f6d3f31bcca61d2a122038f93fd442352d9537c9",
       PRO: "5a498db92f8b29b143b61ec892695ec43fc05f2a",
+    };
+    CONTEXT_COMPONENT_KEYS = {
+      MY: "e467a8aa279dfc2e637b2c93345d0fde1140946e",
+      PRO: "f79cf58bd50bc68ea57a1b32d6c3f00af19f4bcd",
     };
   }
 }
@@ -120,7 +130,7 @@ figma.ui.onmessage = async (msg: {
       return;
     }
 
-    const { title, designer, tpm, area, type } = data;
+    const { title, designer, tpm, area, type, context } = data;
     const componentKey = COVER_COMPONENT_KEYS[area];
     if (!componentKey) {
       figma.ui.postMessage({
@@ -272,6 +282,108 @@ figma.ui.onmessage = async (msg: {
         teamInstance.x = coverInstance.x + coverInstance.width + 100;
         teamInstance.y = coverInstance.y;
         figma.currentPage.appendChild(teamInstance);
+      }
+
+      // Generate context frame
+      const contextComponentKey = CONTEXT_COMPONENT_KEYS[area];
+      console.log(
+        "Context component key for area",
+        area,
+        ":",
+        contextComponentKey
+      );
+      console.log("All context keys:", CONTEXT_COMPONENT_KEYS);
+
+      if (
+        contextComponentKey &&
+        contextComponentKey !== "PLACEHOLDER_MY_CONTEXT_KEY" &&
+        contextComponentKey !== "PLACEHOLDER_PRO_CONTEXT_KEY"
+      ) {
+        try {
+          console.log(
+            "Generating context frame with key:",
+            contextComponentKey
+          );
+          const contextComp = await figma.importComponentByKeyAsync(
+            contextComponentKey
+          );
+          const contextInstance = contextComp.createInstance();
+
+          // Try to set properties, but don't fail if it doesn't work
+          try {
+            contextInstance.setProperties({ Type: type });
+          } catch (propError) {
+            console.warn("Could not set context properties:", propError);
+          }
+
+          // Debug: Log all text nodes in the context instance
+          console.log("Searching for context text layer...");
+          const allTextNodes = contextInstance.findAll(
+            (node) => node.type === "TEXT"
+          );
+          console.log("Found text nodes:", allTextNodes.length);
+          allTextNodes.forEach((node, index) => {
+            console.log(`Text node ${index}:`, {
+              name: node.name,
+              characters: (node as TextNode).characters,
+              type: node.type,
+            });
+          });
+
+          // Find context text layer - try different possible names
+          let contextLayer = contextInstance.findOne(
+            (node) => node.name === "Context" && node.type === "TEXT"
+          ) as TextNode;
+          console.log("Found by name 'Context':", contextLayer ? "YES" : "NO");
+
+          // If not found by name "Context", try to find by content "[Context]"
+          if (!contextLayer) {
+            contextLayer = contextInstance.findOne(
+              (node) =>
+                node.type === "TEXT" && node.characters.includes("[Context]")
+            ) as TextNode;
+            console.log(
+              "Found by content '[Context]':",
+              contextLayer ? "YES" : "NO"
+            );
+          }
+
+          // If still not found, try to find any text node
+          if (!contextLayer) {
+            contextLayer = contextInstance.findOne(
+              (node) => node.type === "TEXT"
+            ) as TextNode;
+            console.log("Found any text node:", contextLayer ? "YES" : "NO");
+          }
+
+          if (contextLayer) {
+            console.log(
+              "Before update - Current text:",
+              contextLayer.characters
+            );
+            await figma.loadFontAsync(contextLayer.fontName as FontName);
+            contextLayer.characters = context;
+            console.log("After update - New text:", contextLayer.characters);
+            console.log("Context text updated successfully:", context);
+          } else {
+            console.warn("Context text layer not found");
+          }
+
+          // Position context frame to the right of team frame
+          contextInstance.x = coverInstance.x + (coverInstance.width + 100) * 2;
+          contextInstance.y = coverInstance.y;
+          figma.currentPage.appendChild(contextInstance);
+          console.log("Context frame created successfully");
+        } catch (contextError) {
+          console.error("Error creating context frame:", contextError);
+          // Don't fail the entire process if context fails
+        }
+      } else {
+        console.log(
+          "Context component key not found or is placeholder for area:",
+          area
+        );
+        console.log("Available context keys:", CONTEXT_COMPONENT_KEYS);
       }
 
       // Detach instance of cover and set as file thumbnail
